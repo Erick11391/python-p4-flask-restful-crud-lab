@@ -23,8 +23,14 @@ def home():
 
 class Plants(Resource):
     def get(self):
-        plants = [plant.to_dict() for plant in Plant.query.all()]
-        return make_response(jsonify(plants), 200)  # Fixed: Added closing parenthesis
+        plants = [{
+            "id": plant.id,
+            "name": plant.name,
+            "image": plant.image,
+            "price": float(plant.price),
+            "is_in_stock": plant.is_in_stock
+        } for plant in Plant.query.all()]
+        return make_response(jsonify(plants), 200)
 
     def post(self):
         data = request.get_json()
@@ -39,7 +45,13 @@ class Plants(Resource):
         db.session.add(new_plant)
         db.session.commit()
 
-        return make_response(new_plant.to_dict(), 201)
+        return make_response({
+            "id": new_plant.id,
+            "name": new_plant.name,
+            "image": new_plant.image,
+            "price": float(new_plant.price),
+            "is_in_stock": new_plant.is_in_stock
+        }, 201)
 
 api.add_resource(Plants, '/plants')
 
@@ -48,7 +60,13 @@ class PlantByID(Resource):
         plant = Plant.query.filter_by(id=id).first()
         if not plant:
             return make_response(jsonify({"error": "Plant not found"}), 404)
-        return make_response(jsonify(plant.to_dict()), 200)
+        return make_response({
+            "id": plant.id,
+            "name": plant.name,
+            "image": plant.image,
+            "price": float(plant.price),
+            "is_in_stock": plant.is_in_stock
+        }, 200)
 
     def patch(self, id):
         plant = Plant.query.filter_by(id=id).first()
@@ -61,12 +79,18 @@ class PlantByID(Resource):
         
         db.session.commit()
         
-        return make_response(jsonify(plant.to_dict()), 200)
+        return make_response({
+            "id": plant.id,
+            "name": plant.name,
+            "image": plant.image,
+            "price": float(plant.price),
+            "is_in_stock": plant.is_in_stock
+        }, 200)
 
     def delete(self, id):
         plant = Plant.query.filter_by(id=id).first()
         if not plant:
-            return make_response(jsonify({"error": "Plant not found"}), 404)
+            return make_response('', 404)
 
         db.session.delete(plant)
         db.session.commit()
